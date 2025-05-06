@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "ahaCX8kCEkEDdiloIutFubQGyRky1lrdx6U8oIIsc/8=",
+  "Source": "IvyScans.API",
+  "BasePath": "_content/IvyScans.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
