@@ -137,11 +137,11 @@ builder.Services.AddCors(options =>
                .AllowAnyMethod()
                .AllowAnyHeader();
     });
-    
+
     // Add a policy specifically for production debugging
     options.AddPolicy("ProductionDebug", corsBuilder =>
     {
-        corsBuilder.SetIsOriginAllowed(origin => 
+        corsBuilder.SetIsOriginAllowed(origin =>
         {
             Console.WriteLine($"CORS origin check: {origin}");
             return true; // Allow all origins temporarily for debugging
@@ -164,10 +164,30 @@ var app = builder.Build();
 app.Use(async (context, next) =>
 {
     var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-    logger.LogInformation($"Request from Origin: {context.Request.Headers.Origin}");
-    logger.LogInformation($"Request Method: {context.Request.Method}");
-    logger.LogInformation($"Request Path: {context.Request.Path}");
+    
+    // Log all request details
+    logger.LogInformation($"=== REQUEST ===");
+    logger.LogInformation($"Method: {context.Request.Method}");
+    logger.LogInformation($"Path: {context.Request.Path}");
+    logger.LogInformation($"Origin: {context.Request.Headers.Origin}");
+    logger.LogInformation($"Host: {context.Request.Headers.Host}");
+    logger.LogInformation($"User-Agent: {context.Request.Headers.UserAgent}");
+    
+    // Log all headers
+    foreach (var header in context.Request.Headers)
+    {
+        logger.LogInformation($"Header: {header.Key} = {header.Value}");
+    }
+    
     await next();
+    
+    // Log response headers
+    logger.LogInformation($"=== RESPONSE ===");
+    logger.LogInformation($"Status: {context.Response.StatusCode}");
+    foreach (var header in context.Response.Headers)
+    {
+        logger.LogInformation($"Response Header: {header.Key} = {header.Value}");
+    }
 });
 
 // Auto-migrate database on startup in production
@@ -213,17 +233,39 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Manual CORS middleware for debugging
+app.Use(async (context, next) =>
+{
+    var origin = context.Request.Headers.Origin.ToString();
+    
+    // Always add CORS headers using indexer to avoid duplicates
+    context.Response.Headers["Access-Control-Allow-Origin"] = "*";
+    context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS";
+    context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With";
+    context.Response.Headers["Access-Control-Max-Age"] = "86400";
+    
+    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation($"Manual CORS headers added for origin: {origin}");
+    
+    // Handle preflight requests
+    if (context.Request.Method == "OPTIONS")
+    {
+        logger.LogInformation("Handling OPTIONS preflight request");
+        context.Response.StatusCode = 200;
+        return;
+    }
+    
+    await next();
+});
+
 // Apply CORS policy - ensure this is before UseAuthentication and UseAuthorization
-if (app.Environment.IsDevelopment())
-{
-    app.UseCors("AllowAll"); // More permissive for development
-}
-else
-{
-    // Temporarily use ProductionDebug for troubleshooting
-    app.UseCors("ProductionDebug"); // Use this to debug CORS issues
-    // app.UseCors("AllowFrontendApp"); // Switch back to this once CORS is working
-}
+// Force use of most permissive policy for debugging
+app.UseCors(policy => policy
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+
+Console.WriteLine("CORS Policy Applied: Allow any origin, method, and header");
 
 app.UseAuthentication();
 app.UseAuthorization();

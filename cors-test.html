@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CORS Test</title>
+  </head>
+  <body>
+    <h1>CORS Test</h1>
+    <button id="testBtn">Test API Call</button>
+    <div id="result"></div>
+
+    <script>
+      document.getElementById("testBtn").addEventListener("click", async () => {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "Testing...";
+
+        try {
+          // Test both local and production APIs
+          const localUrl = "http://localhost:5000/api/comics";
+          const productionUrl = "https://isapi.dominikjaniak.com/api/comics";
+
+          console.log("Testing production API...");
+          const response = await fetch(productionUrl, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            // credentials: 'include' // Uncomment to test with credentials
+          });
+
+          console.log("Response status:", response.status);
+          console.log(
+            "Response headers:",
+            Object.fromEntries(response.headers.entries())
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            resultDiv.innerHTML = `<pre>Success! Status: ${
+              response.status
+            }\n${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            resultDiv.innerHTML = `<pre>Error! Status: ${
+              response.status
+            }\n${await response.text()}</pre>`;
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `<pre>Error: ${error.message}\nStack: ${error.stack}</pre>`;
+          console.error("Fetch error:", error);
+        }
+      });
+    </script>
+  </body>
+</html>
