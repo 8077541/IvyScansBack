@@ -165,3 +165,7 @@ C:\Users\Ivy\Documents\webcomic-reader\back\IvyScans.API\obj\Debug\net9.0\refint
 C:\Users\Ivy\Documents\webcomic-reader\back\IvyScans.API\obj\Debug\net9.0\IvyScans.API.pdb
 C:\Users\Ivy\Documents\webcomic-reader\back\IvyScans.API\obj\Debug\net9.0\IvyScans.API.genruntimeconfig.cache
 C:\Users\Ivy\Documents\webcomic-reader\back\IvyScans.API\obj\Debug\net9.0\ref\IvyScans.API.dll
+C:\Users\Ivy\Documents\webcomic-reader\back\IvyScans.API\obj\Debug\net9.0\IvyScans.API.sourcelink.json
+C:\Users\Ivy\Documents\webcomic-reader\BACK\IvyScans.API\bin\Debug\net9.0\appsettings.Production.json
+C:\Users\Ivy\Documents\webcomic-reader\BACK\IvyScans.API\bin\Debug\net9.0\Npgsql.dll
+C:\Users\Ivy\Documents\webcomic-reader\BACK\IvyScans.API\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
