@@ -97,7 +97,6 @@ namespace IvyScans.API.Controllers
         }
 
         [HttpPost("{id}/chapters")]
-
         public async Task<IActionResult> AddChapter(string id, [FromBody] ChapterCreateDto chapterDto)
         {
             if (chapterDto == null)
@@ -122,10 +121,32 @@ namespace IvyScans.API.Controllers
                     chapterId = result.ChapterId
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log the exception
                 return StatusCode(500, new { message = "An error occurred while adding the chapter" });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteComic(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest(new { message = "Comic ID is required" });
+
+            try
+            {
+                var result = await _comicService.DeleteComicAsync(id);
+
+                if (!result.Success)
+                    return NotFound(new { message = result.Message });
+
+                return Ok(new { message = result.Message });
+            }
+            catch (Exception)
+            {
+                // Log the exception
+                return StatusCode(500, new { message = "An error occurred while deleting the comic" });
             }
         }
     }

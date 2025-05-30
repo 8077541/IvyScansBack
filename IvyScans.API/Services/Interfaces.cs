@@ -18,6 +18,7 @@ namespace IvyScans.API.Services
         Task<List<ComicDto>> SearchComicsAsync(string query);
         Task<ServiceResultDto> CreateComicAsync(CreateComicDto comicDto);
         Task<(bool Success, string Message, string ChapterId)> AddChapterAsync(ChapterCreateDto chapterDto);
+        Task<ServiceResultDto> DeleteComicAsync(string comicId);
     }
 
     public interface IGenreService

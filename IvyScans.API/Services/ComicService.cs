@@ -315,5 +315,88 @@ namespace IvyScans.API.Services
                 return (false, $"Failed to add chapter: {ex.Message}", null);
             }
         }
+
+        public async Task<ServiceResultDto> DeleteComicAsync(string comicId)
+        {
+            try
+            {
+                // Find the comic with all related entities
+                var comic = await _context.Comics
+                    .Include(c => c.Chapters)
+                        .ThenInclude(ch => ch.Images)
+                    .Include(c => c.ComicGenres)
+                    .Include(c => c.Bookmarks)
+                    .Include(c => c.Ratings)
+                    .Include(c => c.ReadingHistories)
+                    .FirstOrDefaultAsync(c => c.Id == comicId);
+
+                if (comic == null)
+                {
+                    return new ServiceResultDto
+                    {
+                        Success = false,
+                        Message = "Comic not found"
+                    };
+                }
+
+                // Delete all chapter images first
+                foreach (var chapter in comic.Chapters)
+                {
+                    if (chapter.Images != null && chapter.Images.Any())
+                    {
+                        _context.ChapterImages.RemoveRange(chapter.Images);
+                    }
+                }
+
+                // Delete all chapters
+                if (comic.Chapters != null && comic.Chapters.Any())
+                {
+                    _context.Chapters.RemoveRange(comic.Chapters);
+                }
+
+                // Delete comic-genre relationships
+                if (comic.ComicGenres != null && comic.ComicGenres.Any())
+                {
+                    _context.ComicGenres.RemoveRange(comic.ComicGenres);
+                }
+
+                // Delete user bookmarks
+                if (comic.Bookmarks != null && comic.Bookmarks.Any())
+                {
+                    _context.UserBookmarks.RemoveRange(comic.Bookmarks);
+                }
+
+                // Delete user ratings
+                if (comic.Ratings != null && comic.Ratings.Any())
+                {
+                    _context.UserRatings.RemoveRange(comic.Ratings);
+                }
+
+                // Delete reading histories
+                if (comic.ReadingHistories != null && comic.ReadingHistories.Any())
+                {
+                    _context.ReadingHistories.RemoveRange(comic.ReadingHistories);
+                }
+
+                // Finally, delete the comic itself
+                _context.Comics.Remove(comic);
+
+                await _context.SaveChangesAsync();
+
+                return new ServiceResultDto
+                {
+                    Success = true,
+                    Message = $"Comic '{comic.Title}' and all related data have been successfully deleted"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResultDto
+                {
+                    Success = false,
+                    Message = $"Failed to delete comic: {ex.Message}"
+                };
+            }
+        }
     }
 }
