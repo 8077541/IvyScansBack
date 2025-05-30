@@ -109,9 +109,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Configure CORS
 var configuredOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 var envAllowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS");
+
+// Log the environment variable for debugging
+Console.WriteLine($"Environment ALLOWED_ORIGINS: {envAllowedOrigins}");
+Console.WriteLine($"Configured origins from appsettings: {string.Join(", ", configuredOrigins ?? new string[0])}");
+
 var allowedOrigins = !string.IsNullOrEmpty(envAllowedOrigins)
-    ? envAllowedOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries)
-    : configuredOrigins ?? new[] { "http://localhost:3000", "https://is.dominikjaniak.com", "https://isapi.dominikjaniak.com" };
+    ? envAllowedOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(o => o.Trim()).ToArray()
+    : configuredOrigins ?? new[] { "http://localhost:3000", "https://is.dominikjaniak.com" };
+
+Console.WriteLine($"Final allowed origins: {string.Join(", ", allowedOrigins)}");
 
 builder.Services.AddCors(options =>
 {
@@ -120,8 +127,7 @@ builder.Services.AddCors(options =>
         corsBuilder.WithOrigins(allowedOrigins)
                .AllowAnyMethod()
                .AllowAnyHeader()
-               .AllowCredentials()
-               .SetIsOriginAllowed(origin => true); // Allow any origin for testing
+               .AllowCredentials();
     });
 
     // Add a more permissive policy for development/testing
@@ -130,6 +136,19 @@ builder.Services.AddCors(options =>
         corsBuilder.AllowAnyOrigin()
                .AllowAnyMethod()
                .AllowAnyHeader();
+    });
+    
+    // Add a policy specifically for production debugging
+    options.AddPolicy("ProductionDebug", corsBuilder =>
+    {
+        corsBuilder.SetIsOriginAllowed(origin => 
+        {
+            Console.WriteLine($"CORS origin check: {origin}");
+            return true; // Allow all origins temporarily for debugging
+        })
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials();
     });
 });
 
@@ -140,6 +159,16 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 var app = builder.Build();
+
+// Add logging for CORS debugging
+app.Use(async (context, next) =>
+{
+    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation($"Request from Origin: {context.Request.Headers.Origin}");
+    logger.LogInformation($"Request Method: {context.Request.Method}");
+    logger.LogInformation($"Request Path: {context.Request.Path}");
+    await next();
+});
 
 // Auto-migrate database on startup in production
 if (app.Environment.IsProduction())
@@ -191,7 +220,9 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseCors("AllowFrontendApp"); // Specific origins for production
+    // Temporarily use ProductionDebug for troubleshooting
+    app.UseCors("ProductionDebug"); // Use this to debug CORS issues
+    // app.UseCors("AllowFrontendApp"); // Switch back to this once CORS is working
 }
 
 app.UseAuthentication();
