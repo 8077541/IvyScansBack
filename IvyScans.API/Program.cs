@@ -9,18 +9,50 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Helper method to convert Railway DATABASE_URL to Entity Framework connection string
+static string ConvertDatabaseUrl(string databaseUrl)
+{
+    if (string.IsNullOrEmpty(databaseUrl))
+        return string.Empty;
+
+    try
+    {
+        var uri = new Uri(databaseUrl);
+        var host = uri.Host;
+        var port = uri.Port;
+        var database = uri.AbsolutePath.TrimStart('/');
+        var userInfo = uri.UserInfo.Split(':');
+        var username = userInfo[0];
+        var password = userInfo.Length > 1 ? userInfo[1] : "";
+
+        var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true";
+        Console.WriteLine($"Converted DATABASE_URL to: Host={host};Port={port};Database={database};Username={username};Password=***");
+        return connectionString;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to convert DATABASE_URL: {ex.Message}");
+        // If conversion fails, return the original string
+        return databaseUrl;
+    }
+}
+
 // Configure for Railway deployment
 if (builder.Environment.IsProduction())
 {
     // Railway provides the PORT environment variable
     var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-
-    // Override connection string with Railway's DATABASE_URL if available
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");    // Override connection string with Railway's DATABASE_URL if available
     var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
     if (!string.IsNullOrEmpty(databaseUrl))
     {
-        builder.Configuration["ConnectionStrings:DefaultConnection"] = databaseUrl;
+        Console.WriteLine("Found DATABASE_URL environment variable, converting to Entity Framework format...");
+        var convertedConnectionString = ConvertDatabaseUrl(databaseUrl);
+        builder.Configuration["ConnectionStrings:DefaultConnection"] = convertedConnectionString;
+    }
+    else
+    {
+        Console.WriteLine("No DATABASE_URL found, using default connection string from appsettings.");
     }
 
     // Override JWT settings with environment variables if available
