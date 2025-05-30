@@ -154,5 +154,15 @@ namespace IvyScans.API.Controllers
                 return StatusCode(500, new { message = "An error occurred while deleting the comic" });
             }
         }
+
+        [HttpGet("test")]
+        public IActionResult TestCors()
+        {
+            return Ok(new { 
+                message = "CORS test successful", 
+                timestamp = DateTime.UtcNow,
+                origin = Request.Headers["Origin"].ToString()
+            });
+        }
     }
 }

@@ -233,39 +233,31 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Manual CORS middleware for debugging
+// SIMPLIFIED CORS MIDDLEWARE - This should definitely work
 app.Use(async (context, next) =>
 {
-    var origin = context.Request.Headers.Origin.ToString();
+    // Set CORS headers for every single request
+    context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+    context.Response.Headers.Append("Access-Control-Allow-Methods", "*");
+    context.Response.Headers.Append("Access-Control-Allow-Headers", "*");
+    context.Response.Headers.Append("Access-Control-Allow-Credentials", "true");
     
-    // Always add CORS headers using indexer to avoid duplicates
-    context.Response.Headers["Access-Control-Allow-Origin"] = "*";
-    context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS";
-    context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With";
-    context.Response.Headers["Access-Control-Max-Age"] = "86400";
+    // Log what we're doing
+    Console.WriteLine($"🔥 CORS: Set headers for {context.Request.Method} {context.Request.Path} from {context.Request.Headers.Origin}");
     
-    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-    logger.LogInformation($"Manual CORS headers added for origin: {origin}");
-    
-    // Handle preflight requests
-    if (context.Request.Method == "OPTIONS")
+    // Handle preflight
+    if (context.Request.Method.Equals("OPTIONS", StringComparison.OrdinalIgnoreCase))
     {
-        logger.LogInformation("Handling OPTIONS preflight request");
+        Console.WriteLine("🔥 CORS: Handling OPTIONS preflight");
         context.Response.StatusCode = 200;
+        await context.Response.WriteAsync("");
         return;
     }
     
     await next();
 });
 
-// Apply CORS policy - ensure this is before UseAuthentication and UseAuthorization
-// Force use of most permissive policy for debugging
-app.UseCors(policy => policy
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
-
-Console.WriteLine("CORS Policy Applied: Allow any origin, method, and header");
+Console.WriteLine("🔥 CORS: Manual CORS middleware applied");
 
 app.UseAuthentication();
 app.UseAuthorization();
