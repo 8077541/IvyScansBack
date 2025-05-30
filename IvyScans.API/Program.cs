@@ -111,7 +111,7 @@ var configuredOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<s
 var envAllowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS");
 var allowedOrigins = !string.IsNullOrEmpty(envAllowedOrigins)
     ? envAllowedOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries)
-    : configuredOrigins ?? new[] { "http://localhost:3000", "https://is.dominikjaniak.com" };
+    : configuredOrigins ?? new[] { "http://localhost:3000", "https://is.dominikjaniak.com", "https://isapi.dominikjaniak.com" };
 
 builder.Services.AddCors(options =>
 {
