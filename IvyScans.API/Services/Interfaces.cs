@@ -9,7 +9,7 @@ namespace IvyScans.API.Services
 {
     public interface IComicService
     {
-        Task<ComicsResponseDto> GetComicsAsync(int page, int pageSize, string genre, string status, string sortBy);
+        Task<ComicsResponseDto> GetComicsAsync(int page, int pageSize, string? genre, string? status, string? sortBy);
         Task<List<ComicDto>> GetFeaturedComicsAsync();
         Task<List<ComicDto>> GetLatestComicsAsync();
         Task<ComicDetailDto> GetComicByIdAsync(string id);

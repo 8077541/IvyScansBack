@@ -19,12 +19,17 @@ namespace IvyScans.API.Controllers
         {
             _comicService = comicService;
         }
-
         [HttpGet]
-        public async Task<IActionResult> GetComics([FromQuery] int page = 1, [FromQuery] int pageSize = 20,
-            [FromQuery] string? genre = null, [FromQuery] string? status = null, [FromQuery] string? sortBy = null)
+        public async Task<IActionResult> GetComics([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] int limit = 0,
+            [FromQuery] string? genre = null, [FromQuery] string? status = null, [FromQuery] string? sortBy = null, [FromQuery] string? sort = null)
         {
-            var result = await _comicService.GetComicsAsync(page, pageSize, genre, status, sortBy);
+            // Support both 'pageSize' and 'limit' parameters for compatibility
+            var actualPageSize = limit > 0 ? limit : pageSize;
+
+            // Support both 'sortBy' and 'sort' parameters for compatibility
+            var actualSortBy = !string.IsNullOrEmpty(sort) ? sort : sortBy;
+
+            var result = await _comicService.GetComicsAsync(page, actualPageSize, genre, status, actualSortBy);
             return Ok(result);
         }
 

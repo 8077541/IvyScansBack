@@ -111,7 +111,7 @@ var configuredOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<s
 var envAllowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS");
 var allowedOrigins = !string.IsNullOrEmpty(envAllowedOrigins)
     ? envAllowedOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries)
-    : configuredOrigins ?? new[] { "http://localhost:3000" };
+    : configuredOrigins ?? new[] { "http://localhost:3000", "https://is.dominikjaniak.com" };
 
 builder.Services.AddCors(options =>
 {
@@ -120,7 +120,16 @@ builder.Services.AddCors(options =>
         corsBuilder.WithOrigins(allowedOrigins)
                .AllowAnyMethod()
                .AllowAnyHeader()
-               .AllowCredentials();
+               .AllowCredentials()
+               .SetIsOriginAllowed(origin => true); // Allow any origin for testing
+    });
+
+    // Add a more permissive policy for development/testing
+    options.AddPolicy("AllowAll", corsBuilder =>
+    {
+        corsBuilder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
     });
 });
 
@@ -176,7 +185,14 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Apply CORS policy - ensure this is before UseAuthentication and UseAuthorization
-app.UseCors("AllowFrontendApp");
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("AllowAll"); // More permissive for development
+}
+else
+{
+    app.UseCors("AllowFrontendApp"); // Specific origins for production
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

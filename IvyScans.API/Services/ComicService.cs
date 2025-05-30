@@ -101,7 +101,7 @@ namespace IvyScans.API.Services
                     .ToList()
             };
         }
-        public async Task<ComicsResponseDto> GetComicsAsync(int page, int pageSize, string genre, string status, string sortBy)
+        public async Task<ComicsResponseDto> GetComicsAsync(int page, int pageSize, string? genre, string? status, string? sortBy)
         {
             var query = _context.Comics.AsQueryable();
 
