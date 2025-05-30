@@ -158,11 +158,39 @@ namespace IvyScans.API.Controllers
         [HttpGet("test")]
         public IActionResult TestCors()
         {
-            return Ok(new { 
-                message = "CORS test successful", 
+            return Ok(new
+            {
+                message = "CORS test successful",
                 timestamp = DateTime.UtcNow,
                 origin = Request.Headers["Origin"].ToString()
             });
+        }
+
+        [HttpGet("status")]
+        public async Task<IActionResult> GetStatus()
+        {
+            try
+            {
+                // Test database connection
+                var canConnect = await _comicService.TestConnectionAsync();
+                return Ok(new
+                {
+                    status = "healthy",
+                    database = canConnect ? "connected" : "disconnected",
+                    timestamp = DateTime.UtcNow,
+                    cors = "enabled"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = "error",
+                    message = ex.Message,
+                    timestamp = DateTime.UtcNow,
+                    cors = "enabled"
+                });
+            }
         }
     }
 }

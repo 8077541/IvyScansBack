@@ -398,5 +398,17 @@ namespace IvyScans.API.Services
                 };
             }
         }
+
+        public async Task<bool> TestConnectionAsync()
+        {
+            try
+            {
+                return await _context.Database.CanConnectAsync();
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

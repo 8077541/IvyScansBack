@@ -164,7 +164,7 @@ var app = builder.Build();
 app.Use(async (context, next) =>
 {
     var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-    
+
     // Log all request details
     logger.LogInformation($"=== REQUEST ===");
     logger.LogInformation($"Method: {context.Request.Method}");
@@ -172,15 +172,15 @@ app.Use(async (context, next) =>
     logger.LogInformation($"Origin: {context.Request.Headers.Origin}");
     logger.LogInformation($"Host: {context.Request.Headers.Host}");
     logger.LogInformation($"User-Agent: {context.Request.Headers.UserAgent}");
-    
+
     // Log all headers
     foreach (var header in context.Request.Headers)
     {
         logger.LogInformation($"Header: {header.Key} = {header.Value}");
     }
-    
+
     await next();
-    
+
     // Log response headers
     logger.LogInformation($"=== RESPONSE ===");
     logger.LogInformation($"Status: {context.Response.StatusCode}");
@@ -241,10 +241,10 @@ app.Use(async (context, next) =>
     context.Response.Headers.Append("Access-Control-Allow-Methods", "*");
     context.Response.Headers.Append("Access-Control-Allow-Headers", "*");
     context.Response.Headers.Append("Access-Control-Allow-Credentials", "true");
-    
+
     // Log what we're doing
     Console.WriteLine($"🔥 CORS: Set headers for {context.Request.Method} {context.Request.Path} from {context.Request.Headers.Origin}");
-    
+
     // Handle preflight
     if (context.Request.Method.Equals("OPTIONS", StringComparison.OrdinalIgnoreCase))
     {
@@ -253,7 +253,7 @@ app.Use(async (context, next) =>
         await context.Response.WriteAsync("");
         return;
     }
-    
+
     await next();
 });
 
