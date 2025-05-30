@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("IvyScans.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+06c3632c25116cf32649c42981659986c19e4657")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f9b257c782cd872c4fe2102f8fbb83c07d16a3fd")]
 [assembly: System.Reflection.AssemblyProductAttribute("IvyScans.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("IvyScans.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

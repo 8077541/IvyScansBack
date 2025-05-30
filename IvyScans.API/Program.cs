@@ -9,6 +9,32 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Helper method to convert Railway DATABASE_URL to EF connection string
+static string ConvertDatabaseUrl(string databaseUrl)
+{
+    if (string.IsNullOrEmpty(databaseUrl))
+        return string.Empty;
+
+    try
+    {
+        var uri = new Uri(databaseUrl);
+        var host = uri.Host;
+        var port = uri.Port;
+        var database = uri.LocalPath.Substring(1); // Remove the leading '/'
+        var userInfo = uri.UserInfo.Split(':');
+        var username = userInfo[0];
+        var password = userInfo.Length > 1 ? userInfo[1] : "";
+
+        // Convert to Npgsql connection string format
+        return $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true";
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error parsing DATABASE_URL: {ex.Message}");
+        return string.Empty;
+    }
+}
+
 // Configure for Railway deployment
 if (builder.Environment.IsProduction())
 {
@@ -20,7 +46,16 @@ if (builder.Environment.IsProduction())
     var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
     if (!string.IsNullOrEmpty(databaseUrl))
     {
-        builder.Configuration["ConnectionStrings:DefaultConnection"] = databaseUrl;
+        var convertedConnectionString = ConvertDatabaseUrl(databaseUrl);
+        if (!string.IsNullOrEmpty(convertedConnectionString))
+        {
+            builder.Configuration["ConnectionStrings:DefaultConnection"] = convertedConnectionString;
+            Console.WriteLine($"Converted DATABASE_URL to EF connection string");
+        }
+        else
+        {
+            Console.WriteLine("Failed to convert DATABASE_URL");
+        }
     }
 
     // Override JWT settings with environment variables if available
@@ -67,6 +102,9 @@ builder.Services.AddSwaggerGen(c =>
 // Add DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var databaseProvider = builder.Configuration.GetValue<string>("DatabaseProvider");
+
+Console.WriteLine($"Database Provider: {databaseProvider}");
+Console.WriteLine($"Connection String (first 50 chars): {(connectionString?.Length > 50 ? connectionString.Substring(0, 50) + "..." : connectionString)}");
 
 if (databaseProvider == "PostgreSQL")
 {
