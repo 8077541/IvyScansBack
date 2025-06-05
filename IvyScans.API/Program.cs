@@ -198,36 +198,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 var app = builder.Build();
 
-// Add logging for CORS debugging
-app.Use(async (context, next) =>
-{
-    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-
-    // Log all request details
-    logger.LogInformation($"=== REQUEST ===");
-    logger.LogInformation($"Method: {context.Request.Method}");
-    logger.LogInformation($"Path: {context.Request.Path}");
-    logger.LogInformation($"Origin: {context.Request.Headers.Origin}");
-    logger.LogInformation($"Host: {context.Request.Headers.Host}");
-    logger.LogInformation($"User-Agent: {context.Request.Headers.UserAgent}");
-
-    // Log all headers
-    foreach (var header in context.Request.Headers)
-    {
-        logger.LogInformation($"Header: {header.Key} = {header.Value}");
-    }
-
-    await next();
-
-    // Log response headers
-    logger.LogInformation($"=== RESPONSE ===");
-    logger.LogInformation($"Status: {context.Response.StatusCode}");
-    foreach (var header in context.Response.Headers)
-    {
-        logger.LogInformation($"Response Header: {header.Key} = {header.Value}");
-    }
-});
-
 // Auto-migrate database on startup in production
 if (app.Environment.IsProduction())
 {
