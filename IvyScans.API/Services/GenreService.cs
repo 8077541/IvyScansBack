@@ -11,7 +11,8 @@ namespace IvyScans.API.Services
         public GenreService(ApplicationDbContext context)
         {
             _context = context;
-        }        public async Task<List<string>> GetAllGenresAsync()
+        }
+        public async Task<List<string>> GetAllGenresAsync()
         {
             return await _context.Genres
                 .Select(g => g.Name)

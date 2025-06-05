@@ -14,7 +14,8 @@ namespace IvyScans.API.Controllers
         public GenresController(IGenreService genreService)
         {
             _genreService = genreService;
-        }        [HttpGet]
+        }
+        [HttpGet]
         public async Task<IActionResult> GetAllGenres()
         {
             var genres = await _genreService.GetAllGenresAsync();
@@ -31,7 +32,7 @@ namespace IvyScans.API.Controllers
             }
 
             var result = await _genreService.DeleteGenreAsync(id);
-            
+
             if (result.Success)
             {
                 return Ok(result);

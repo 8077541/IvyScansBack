@@ -1,9 +1,11 @@
 # DELETE Genre Endpoint Documentation
 
 ## Overview
+
 The DELETE genre endpoint allows authorized users to delete a genre from the system. The endpoint includes safety checks to prevent deletion of genres that are currently being used by comics.
 
 ## Endpoint Details
+
 - **URL**: `/api/genres/{id}`
 - **Method**: `DELETE`
 - **Authentication**: Required (Bearer token)
@@ -12,9 +14,11 @@ The DELETE genre endpoint allows authorized users to delete a genre from the sys
 ## Request Format
 
 ### URL Parameters
+
 - `id` (string, required): The unique identifier of the genre to delete
 
 ### Headers
+
 ```
 Authorization: Bearer <your-jwt-token>
 Content-Type: application/json
@@ -23,6 +27,7 @@ Content-Type: application/json
 ## Response Format
 
 ### Success Response (200 OK)
+
 ```json
 {
   "success": true,
@@ -33,6 +38,7 @@ Content-Type: application/json
 ### Error Responses
 
 #### Genre Not Found (404 Not Found)
+
 ```json
 {
   "success": false,
@@ -41,6 +47,7 @@ Content-Type: application/json
 ```
 
 #### Genre In Use (409 Conflict)
+
 ```json
 {
   "success": false,
@@ -49,6 +56,7 @@ Content-Type: application/json
 ```
 
 #### Invalid Request (400 Bad Request)
+
 ```json
 {
   "success": false,
@@ -57,6 +65,7 @@ Content-Type: application/json
 ```
 
 #### Unauthorized (401 Unauthorized)
+
 ```json
 {
   "message": "Unauthorized"
@@ -66,6 +75,7 @@ Content-Type: application/json
 ## Usage Examples
 
 ### Using cURL
+
 ```bash
 # Delete a genre
 curl -X DELETE "https://your-api-domain.com/api/genres/genre-id-here" \
@@ -74,39 +84,41 @@ curl -X DELETE "https://your-api-domain.com/api/genres/genre-id-here" \
 ```
 
 ### Using JavaScript/Fetch
+
 ```javascript
 const deleteGenre = async (genreId, token) => {
   try {
     const response = await fetch(`/api/genres/${genreId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
 
     const result = await response.json();
-    
+
     if (response.ok) {
-      console.log('Genre deleted successfully:', result.message);
+      console.log("Genre deleted successfully:", result.message);
     } else {
-      console.error('Error deleting genre:', result.message);
+      console.error("Error deleting genre:", result.message);
     }
-    
+
     return result;
   } catch (error) {
-    console.error('Network error:', error);
+    console.error("Network error:", error);
     throw error;
   }
 };
 
 // Usage
-deleteGenre('genre-id-here', 'your-jwt-token')
-  .then(result => console.log(result))
-  .catch(error => console.error(error));
+deleteGenre("genre-id-here", "your-jwt-token")
+  .then((result) => console.log(result))
+  .catch((error) => console.error(error));
 ```
 
 ### Using Python (requests)
+
 ```python
 import requests
 
@@ -116,9 +128,9 @@ def delete_genre(genre_id, token):
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
-    
+
     response = requests.delete(url, headers=headers)
-    
+
     if response.status_code == 200:
         print("Genre deleted successfully")
     elif response.status_code == 404:
@@ -129,7 +141,7 @@ def delete_genre(genre_id, token):
         print("Unauthorized - check your token")
     else:
         print(f"Error: {response.status_code}")
-    
+
     return response.json()
 
 # Usage
@@ -140,17 +152,20 @@ print(result)
 ## Important Notes
 
 ### Safety Features
+
 1. **Cascade Prevention**: The endpoint prevents deletion of genres that are currently used by comics
 2. **Authentication Required**: Only authenticated users can delete genres
 3. **Detailed Error Messages**: Clear feedback about why deletion failed
 
 ### Best Practices
+
 1. Always check if a genre is in use before attempting deletion
 2. Consider implementing soft deletes for audit trail purposes
 3. Implement proper role-based access control if needed (admin-only deletion)
 4. Log genre deletion activities for audit purposes
 
 ### Business Logic
+
 - Genres that are currently assigned to comics cannot be deleted
 - The system will list up to 3 comic titles that are using the genre
 - Empty genres (not assigned to any comics) can be safely deleted
@@ -158,11 +173,13 @@ print(result)
 ## Testing the Endpoint
 
 You can test this endpoint using:
+
 1. **Swagger UI**: Available at `/swagger` when running the API
 2. **Postman**: Import the API collection and test with proper authentication
 3. **Browser Dev Tools**: Use the examples above in the browser console
 
 ## Related Endpoints
+
 - `GET /api/genres` - Get all genres
 - `GET /api/comics?genre={genreName}` - Get comics by genre
 - `DELETE /api/comics/{id}` - Delete comic (which also removes genre relationships)
