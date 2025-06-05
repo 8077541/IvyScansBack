@@ -24,7 +24,7 @@ namespace IvyScans.API.Services
     public interface IGenreService
     {
         Task<List<string>> GetAllGenresAsync();
-        Task<ServiceResultDto> DeleteGenreAsync(string genreId);
+        Task<ServiceResultDto> DeleteGenreAsync(string genreName);
     }
 
     public interface IAuthService

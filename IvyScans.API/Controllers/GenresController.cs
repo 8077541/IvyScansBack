@@ -21,17 +21,16 @@ namespace IvyScans.API.Controllers
             var genres = await _genreService.GetAllGenresAsync();
             return Ok(genres);
         }
-
-        [HttpDelete("{id}")]
+        [HttpDelete("{name}")]
         [Authorize] // Require authentication for delete operations
-        public async Task<IActionResult> DeleteGenre(string id)
+        public async Task<IActionResult> DeleteGenre(string name)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(name))
             {
-                return BadRequest("Genre ID is required");
+                return BadRequest("Genre name is required");
             }
 
-            var result = await _genreService.DeleteGenreAsync(id);
+            var result = await _genreService.DeleteGenreAsync(name);
 
             if (result.Success)
             {

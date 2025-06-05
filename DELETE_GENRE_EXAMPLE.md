@@ -6,7 +6,7 @@ The DELETE genre endpoint allows authorized users to delete a genre from the sys
 
 ## Endpoint Details
 
-- **URL**: `/api/genres/{id}`
+- **URL**: `/api/genres/{name}`
 - **Method**: `DELETE`
 - **Authentication**: Required (Bearer token)
 - **Authorization**: Any authenticated user
@@ -15,7 +15,7 @@ The DELETE genre endpoint allows authorized users to delete a genre from the sys
 
 ### URL Parameters
 
-- `id` (string, required): The unique identifier of the genre to delete
+- `name` (string, required): The name of the genre to delete
 
 ### Headers
 
@@ -78,7 +78,7 @@ Content-Type: application/json
 
 ```bash
 # Delete a genre
-curl -X DELETE "https://your-api-domain.com/api/genres/genre-id-here" \
+curl -X DELETE "https://your-api-domain.com/api/genres/Action" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
   -H "Content-Type: application/json"
 ```
@@ -86,15 +86,18 @@ curl -X DELETE "https://your-api-domain.com/api/genres/genre-id-here" \
 ### Using JavaScript/Fetch
 
 ```javascript
-const deleteGenre = async (genreId, token) => {
+const deleteGenre = async (genreName, token) => {
   try {
-    const response = await fetch(`/api/genres/${genreId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `/api/genres/${encodeURIComponent(genreName)}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     const result = await response.json();
 
@@ -112,7 +115,7 @@ const deleteGenre = async (genreId, token) => {
 };
 
 // Usage
-deleteGenre("genre-id-here", "your-jwt-token")
+deleteGenre("Action", "your-jwt-token")
   .then((result) => console.log(result))
   .catch((error) => console.error(error));
 ```
@@ -122,8 +125,8 @@ deleteGenre("genre-id-here", "your-jwt-token")
 ```python
 import requests
 
-def delete_genre(genre_id, token):
-    url = f"https://your-api-domain.com/api/genres/{genre_id}"
+def delete_genre(genre_name, token):
+    url = f"https://your-api-domain.com/api/genres/{genre_name}"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
@@ -145,7 +148,7 @@ def delete_genre(genre_id, token):
     return response.json()
 
 # Usage
-result = delete_genre("genre-id-here", "your-jwt-token")
+result = delete_genre("Action", "your-jwt-token")
 print(result)
 ```
 

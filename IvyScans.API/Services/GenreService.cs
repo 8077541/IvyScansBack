@@ -18,16 +18,15 @@ namespace IvyScans.API.Services
                 .Select(g => g.Name)
                 .ToListAsync();
         }
-
-        public async Task<ServiceResultDto> DeleteGenreAsync(string genreId)
+        public async Task<ServiceResultDto> DeleteGenreAsync(string genreName)
         {
             try
             {
-                // Find the genre with all related entities
+                // Find the genre with all related entities using name instead of ID
                 var genre = await _context.Genres
                     .Include(g => g.ComicGenres)
                         .ThenInclude(cg => cg.Comic)
-                    .FirstOrDefaultAsync(g => g.Id == genreId);
+                    .FirstOrDefaultAsync(g => g.Name == genreName);
 
                 if (genre == null)
                 {

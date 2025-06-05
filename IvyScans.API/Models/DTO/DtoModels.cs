@@ -151,7 +151,6 @@ namespace IvyScans.API.Models.DTO
         public bool Success { get; set; }
         public string Message { get; set; }
     }
-
     public class ComicsResponseDto
     {
         public List<ComicDto> Comics { get; set; }
